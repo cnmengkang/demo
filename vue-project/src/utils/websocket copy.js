@@ -24,27 +24,28 @@ const baseUrl = {
     }
 }
 class WebSocketService {
-    constructor() {
-        this.url = baseUrl.aa();
+    constructor(url) {
+        this.url = url;
         this.socket = null;
+        this.connected = false;
         this.messageQueue = [];
-        this.app_id = APPID
         this.messageHandlers = [];
     }
 
     connect() {
         this.socket = new WebSocket(this.url);
+
         this.socket.addEventListener('open', () => {
-            console.log('连接建立时触发')
+            this.connected = true;
+            this.sendQueuedMessages();
         });
 
         this.socket.addEventListener('message', (event) => {
-            console.log(event)
             this.handleMessage(event.data);
         });
 
         this.socket.addEventListener('close', () => {
-            console.log('close')
+            this.connected = false;
         });
 
         this.socket.addEventListener('error', (error) => {
@@ -53,47 +54,11 @@ class WebSocketService {
     }
 
     send(message) {
-        var params = {
-            "header": {
-                "app_id": this.app_id,
-                "uid": "fd3f47e4-d"
-            },
-            "parameter": {
-                "chat": {
-                    "domain": "general",
-                    "temperature": 0.5,
-                    "max_tokens": 1024
-                }
-            },
-            "payload": {
-                "message": {
-                    "text": [
-                        {
-                            "role": "user",
-                            "content": "中国第一个皇帝是谁？"
-                        },
-                        {
-                            "role": "assistant",
-                            "content": "秦始皇"
-                        },
-                        {
-                            "role": "user",
-                            "content": "秦始皇修的长城吗"
-                        },
-                        {
-                            "role": "assistant",
-                            "content": "是的"
-                        },
-                        {
-                            "role": "user",
-                            "content": message
-                        }
-                    ]
-                }
-            }
+        if (this.connected) {
+            this.socket.send(message);
+        } else {
+            this.messageQueue.push(message);
         }
-        console.log(JSON.stringify(params))
-        this.socket.send(JSON.stringify(params));
     }
 
     sendQueuedMessages() {
@@ -121,3 +86,4 @@ class WebSocketService {
 }
 
 export default WebSocketService;
+
