@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import  {getWebsocketUrl}  from '../utils/websocket'
 export default {
     mounted() {
 
@@ -14,7 +15,7 @@ export default {
         doSend() {
             // this.$websocket.send('Hello, WebSocket Server!');
             console.log(new Date().toUTCString())
-
+            getWebsocketUrl()
         }
 
     }
