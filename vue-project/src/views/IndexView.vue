@@ -1,44 +1,85 @@
 <template>
-    <div>
-        <!-- <button @click="connectWebSocket">连接</button> -->
-        <input v-model="message" @keyup.enter="sendMessage">
-        <button @click="sendMessage">提交</button>
-        <div class="box">
-            <div class="left">
-                <p v-for="(item, index) in user" :key="index">
-                    {{ item.content }}
-                </p>
-            </div>
-            <div class="right">
-                <p v-for="(item, index) in messages" :key="index">
-                    {{ item.content }}
-                </p>
-            </div>
+    <div class="container">
+        <div class="left-panel">
+            <ul>
+                <li :class="[item.role]" v-for="item in messages" :key="item.id">{{ item.content }}</li>
+
+            </ul>
+        </div>
+        <div class="right-panel">
+            <input v-model="inputText" @keyup.enter="sendMessage" />
+            <button @click="sendMessage">提交</button>
         </div>
     </div>
 </template>
 
 <script>
-import WebSocketService from '../utils/websocket'; // 请替换为实际的文件路径
+import { ref, onUnmounted, computed } from 'vue';
+import WebSocketService from '../utils/websocket';
+
 export default {
-    data() {
+    setup() {
+        const messages = ref([]);
+        const inputText = ref('你好？');
+        const websocket = ref('');
+
+        // 点击发送事件
+        // 用户数据
+        const sendMessage = () => {
+            const data = inputText.value;
+            messages.value.push({ id: Date.now(), role: 'user', content: data })
+            websocket.value = new WebSocketService(data);
+            websocket.value.onMessage = onMessage;
+        };
+        // ai
+        const onMessage = (data) => {
+            let format = data.payload.choices.text[0];
+            messages.value.push(format);
+        };
+        // 处理结果数据
+
+        onUnmounted(() => {
+            websocket.value.close();
+        });
         return {
-            websocket: null,
-            message: '你好?',
-            messages: [],
-            user: []
+            messages,
+            inputText,
+            sendMessage,
+
         };
     },
-    methods: {
-        sendMessage() {
-            this.websocket = new WebSocketService();
-            this.websocket.connect(this.message);
-            this.websocket.addMessageHandler(this.resultMessage);
-            this.user.push({ role: 'user', content: `You: ${this.message}` });
-        },
-        resultMessage(message) {
-            this.messages.push({ role: 'dd', content: `AI: ${message}` });
-        }
-    },
-}
+};
 </script>
+
+<style>
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.left-panel {
+    flex: 1;
+    background-color: #f2f2f2;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.user {
+    color: red;
+    background-color: pink;
+}
+
+.assistant {
+    text-align: left;
+}
+
+.right-panel {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 20px;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+</style>

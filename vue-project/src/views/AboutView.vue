@@ -25,9 +25,7 @@ export default {
   data() {
     return {
       value: '',
-      list: [{
-        user: '今天星期几？', system: '今天时星期一，天气很好'
-      }]
+      list: [{user: '今天星期几？', system: '今天时星期一，天气很好'}]
     }
   },
   methods: {

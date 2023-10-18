@@ -23,36 +23,40 @@ const getWebSocketUrl = {
         return url;
     }
 }
+// WebSocketService.js
+
 class WebSocketService {
-    constructor() {
-        this.socket = new WebSocket(getWebSocketUrl.author());
-        this.app_id = APPID
-        this.messageHandlers = [];
+    constructor(data) {
+        this.websocket = new WebSocket(getWebSocketUrl.author());
+
+        this.websocket.onopen = () => {
+            console.log('WebSocket连接已打开');
+            this.WebSocketSend(data)
+        };
+
+        this.websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.onMessage(data);
+        };
+
+        this.websocket.onclose = () => {
+            console.log('WebSocket连接已关闭');
+        };
+
+        this.websocket.onerror = (error) => {
+            console.error('WebSocket发生错误:', error);
+        };
     }
-    // 建立连接
-    connect(message) {
-        this.socket.addEventListener('open', () => {
-            console.log('success')
-            this.WebSocketSend(message)
-        });
 
-        this.socket.addEventListener('message', (event) => {
-            this.resultMessage(event.data);
-        });
-
-        this.socket.addEventListener('close', () => {
-            console.log('close')
-        });
-
-        this.socket.addEventListener('error', (error) => {
-            console.error('WebSocket error:', error);
-        });
+    onMessage(data) {
+        // 处理接收到的数据
     }
+
     // 发送数据包
     WebSocketSend(message) {
         let params = {
             "header": {
-                "app_id": this.app_id,
+                "app_id": APPID,
                 "uid": "fd3f47e4-d"
             },
             "parameter": {
@@ -74,19 +78,13 @@ class WebSocketService {
                 }
             }
         }
-        this.socket.send(JSON.stringify(params));
+        this.websocket.send(JSON.stringify(params));
     }
-    // 成功接受数据
-    resultMessage(message) {
-        let jsonParse = JSON.parse(message);
-        let textContent = jsonParse.payload.choices.text[0].content;
-        this.messageHandlers.forEach((handler) => {
-            handler(textContent);
-        });
-    }
-    addMessageHandler(handler) {
-        this.messageHandlers.push(handler);
+    // 手动关闭
+    close() {
+        this.websocket.close();
     }
 }
 
 export default WebSocketService;
+

@@ -5,8 +5,8 @@ import { base64 } from 'base64-js';
 const APPID = 'd9975a5a';
 const API_SECRET = 'ZWRhNWVlZTMyZTMyN2RlNjU3ZmMxMjVj';
 const API_KEY = '93644b74d4b368c48aa251e086c4a5cc';
-const baseUrl = {
-    aa() {
+const getWebSocketUrl = {
+    author() {
         let apiKey = API_KEY;
         let apiSecret = API_SECRET;
         let url = 'wss://spark-api.xf-yun.com/v1.1/chat'
@@ -20,70 +20,73 @@ const baseUrl = {
         let authorizationOrigin = `api_key="${apiKey}", algorithm="${algorithm}", headers="${headers}", signature="${signature}"`
         let authorization = btoa(authorizationOrigin)
         url = `${url}?authorization=${authorization}&date=${date}&host=${host}`
-        return url
+        return url;
     }
 }
 class WebSocketService {
-    constructor(url) {
-        this.url = url;
-        this.socket = null;
-        this.connected = false;
-        this.messageQueue = [];
+    constructor() {
+        this.socket = new WebSocket(getWebSocketUrl.author());
+        this.app_id = APPID
         this.messageHandlers = [];
     }
-
-    connect() {
-        this.socket = new WebSocket(this.url);
-
+    // 建立连接
+    connect(message) {
         this.socket.addEventListener('open', () => {
-            this.connected = true;
-            this.sendQueuedMessages();
+            console.log('success')
+            this.WebSocketSend(message)
         });
 
         this.socket.addEventListener('message', (event) => {
-            this.handleMessage(event.data);
+            this.resultMessage(event.data);
         });
 
         this.socket.addEventListener('close', () => {
-            this.connected = false;
+            console.log('close')
         });
 
         this.socket.addEventListener('error', (error) => {
             console.error('WebSocket error:', error);
         });
     }
+    // 发送数据包
+    WebSocketSend(message) {
+        let params = {
+            "header": {
+                "app_id": this.app_id,
+                "uid": "fd3f47e4-d"
+            },
+            "parameter": {
+                "chat": {
+                    "domain": "general",
+                    "temperature": 0.5,
+                    "max_tokens": 1024
+                }
+            },
+            "payload": {
+                "message": {
+                    "text": [
 
-    send(message) {
-        if (this.connected) {
-            this.socket.send(message);
-        } else {
-            this.messageQueue.push(message);
+                        {
+                            "role": "user",
+                            "content": message
+                        }
+                    ]
+                }
+            }
         }
+        this.socket.send(JSON.stringify(params));
     }
-
-    sendQueuedMessages() {
-        while (this.messageQueue.length > 0) {
-            const message = this.messageQueue.shift();
-            this.send(message);
-        }
-    }
-
-    handleMessage(message) {
+    // 成功接受数据
+    resultMessage(message) {
+        let jsonParse = JSON.parse(message);
+        let textContent = jsonParse.payload.choices.text[0].content;
         this.messageHandlers.forEach((handler) => {
-            handler(message);
+            handler(textContent);
         });
     }
-
     addMessageHandler(handler) {
         this.messageHandlers.push(handler);
-    }
-
-    disconnect() {
-        if (this.socket) {
-            this.socket.close();
-        }
     }
 }
 
 export default WebSocketService;
-
