@@ -1,9 +1,11 @@
+
 <template>
     <div class="container">
         <div class="left-panel">
             <ul>
-                <li :class="[item.role]" v-for="item in messages" :key="item.id">{{ item.content }}</li>
-
+                <li :class="[item.role]" v-for="item in chatMessages" :key="item.id">
+                    {{ item.content }}
+                </li>
             </ul>
         </div>
         <div class="right-panel">
@@ -14,37 +16,52 @@
 </template>
 
 <script>
-import { ref, onUnmounted, computed } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import WebSocketService from '../utils/websocket';
-
 export default {
     setup() {
-        const messages = ref([]);
+        const chatMessages = ref([]);
         const inputText = ref('你好？');
         const websocket = ref('');
+        const partialMessage = ref('')
 
         // 点击发送事件
         // 用户数据
         const sendMessage = () => {
             const data = inputText.value;
-            messages.value.push({ id: Date.now(), role: 'user', content: data })
+            chatMessages.value.push({ content: data, role: 'user' })
             websocket.value = new WebSocketService(data);
             websocket.value.onMessage = onMessage;
+            inputText.value = "";
         };
         // ai
         const onMessage = (data) => {
-            let format = data.payload.choices.text[0];
-            messages.value.push(format);
+            let format = data.payload.choices.text;
+            format.forEach(reply => {
+                // 将分片消息逐步合并
+                partialMessage.value += reply.content + ' ';
+                // 如果消息是完整的，添加到chatMessages数组中
+                const combinedReply = {
+                    role: 'assistant',
+                    content: partialMessage.value,
+
+                }
+                chatMessages.value.push(combinedReply)
+                partialMessage.value = ''
+            })
+
         };
-        // 处理结果数据
 
         onUnmounted(() => {
             websocket.value.close();
         });
+
         return {
-            messages,
+            chatMessages,
             inputText,
             sendMessage,
+            partialMessage
+
 
         };
     },
