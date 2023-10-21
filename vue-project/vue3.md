@@ -16,9 +16,19 @@ import { ref } from 'vue'
 const count = ref(0)
 <!-- console.log(count.value) 0 -->
 ```
+###reactive
+```
+<script>
+import { reactive } from 'vue'
+
+const state = reactive({ count: 0 })
+</script>
+<button @click="state.count++">
+  {{ state.count }}
+</button>
+```
 ####声明响应状态
 ```
-
 <script setup>
 import { ref } from 'vue'
 

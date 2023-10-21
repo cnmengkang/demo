@@ -1,105 +1,27 @@
 <template>
-  <div class="about">
-    <div class="container">
-      <div class="box" v-for="(item, index) in list" :key="index">
-        <p class="right user p" v-if="item.user">
-          <span>{{ item.user }}---{{ index }}</span><b>U</b>
-        </p>
-        <p class="left system p" v-if="item.system">
-          <b>S</b><span>{{ item.system }}---{{ index }}</span>
-        </p>
-      </div>
-
+  <div class="aboutViews">
+    <div class="left">
+      <div class="user">{{ inputValue }}</div>
     </div>
-    <div class="footer">
-      <div class="input">
-        <input placeholder="输入你的问题？" v-model="value" />
-        <button @click="sedSubmit">提交</button>
-      </div>
+    <div class="right">
+      <input type="text" v-model="inputValue" />
+      <button @click="sendMessage">发送</button>
+      <button @click="close">close</button>
     </div>
-
   </div>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      value: '',
-      list: [{user: '今天星期几？', system: '今天时星期一，天气很好'}]
-    }
-  },
-  methods: {
-    sedSubmit() {
-      this.list.push({ user: this.value })
-      setTimeout(() => {
-        this.list.push({ system: `你好呀` })
-      }, 1000)
-      this.value = ''
-    },
 
-  }
+<script setup>
+import wsService from "../utils/wsService";
+import { ref } from "vue";
+const ws = new wsService("wss://javascript.info/article/websocket/demo/hello");
+const inputValue = ref("你好？");
+function sendMessage() {
+  ws.send(inputValue.value);
+  console.log(ws);
+}
+function close() {
+  ws.close();
 }
 </script>
-<style>
-.about {
-  width: 80%;
-}
-
-.container {
-  min-height: 100%;
-  width: 100%;
-  display: flex;
-  border: 1px solid red;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-
-.box {
-  width: 100%;
-  padding: 10px 30px;
-}
-
-.p {
-
-  width: 100%;
-
-}
-
-.box p b {
-  border-radius: 50%;
-  color: #fff;
-  background-color: #000;
-  display: inline-block;
-  width: 44px;
-  text-align: center;
-  height: 44px;
-  line-height: 44px;
-}
-
-.left {
-  float: left;
-}
-
-.left span {
-  width: auto;
-  display: inline-block;
-  background: pink;
-  color: #000;
-  padding: 10px 15px;
-  border-radius: 4px;
-}
-
-.right span {
-  width: auto;
-  display: inline-block;
-  background: green;
-  color: #fff;
-  padding: 10px 15px;
-  border-radius: 4px;
-}
-
-.right {
-  float: right;
-  text-align: right;
-}
-</style>
+<style scoped></style>

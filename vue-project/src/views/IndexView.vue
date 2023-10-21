@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="left-panel">
-      <ul>
-        <li :class="[item.role]" v-for="item in chatMessages" :key="item.id">
-            {{ item.content }}
-        </li>
+      <ul ref="ul">
+        <!-- <li :class="[item.role]" v-for="item in chatMessages" :key="item.id">
+          <p v-html="item.content"></p>
+        </li> -->
       </ul>
     </div>
     <div class="right-panel">
@@ -15,15 +15,16 @@
 </template>
 
 <script>
-import { ref, onUnmounted } from "vue";
+import { ref, computed, watch } from "vue";
 import WebSocketService from "../utils/websocket";
 export default {
   setup() {
     const chatMessages = ref([]);
     const inputText = ref("你好？");
     const websocket = ref("");
+    const ul = ref(null);
+    let newItem;
 
-    // 点击发送事件
     // 用户数据
     const sendMessage = () => {
       const data = inputText.value;
@@ -32,20 +33,16 @@ export default {
       websocket.value.appendMessage = appendMessage;
       inputText.value = "";
     };
-    // ai
     const appendMessage = (data) => {
-      chatMessages.value.push({ role: "ai", content: data });
+      newItem += `<div>${data[0].content}</div>`;
+      ul.value.appendChild(newItem);
     };
-
-
-    onUnmounted(() => {
-      websocket.value.close();
-    });
 
     return {
       chatMessages,
       inputText,
       sendMessage,
+      ul,
     };
   },
 };

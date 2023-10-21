@@ -5,11 +5,12 @@ import { base64 } from "base64-js";
 const APPID = "d9975a5a";
 const API_SECRET = "ZWRhNWVlZTMyZTMyN2RlNjU3ZmMxMjVj";
 const API_KEY = "93644b74d4b368c48aa251e086c4a5cc";
+const BASE_URL = "wss://spark-api.xf-yun.com/v1.1/chat";
 const getWebSocketUrl = {
   author() {
     let apiKey = API_KEY;
     let apiSecret = API_SECRET;
-    let url = "wss://spark-api.xf-yun.com/v1.1/chat";
+    let url = BASE_URL;
     let host = location.host;
     let date = new Date().toUTCString();
     let algorithm = "hmac-sha256";
@@ -35,16 +36,16 @@ class WebSocketService {
       console.log("WebSocket连接已打开");
       this.WebSocketSend(data);
     };
-
     this.websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      let format = data.payload.choices.text[0].content;
+      let format = data.payload.choices.text;
       this.status = data.header.status;
       this.messageFragments.push(format);
+      this.appendMessage(format);
       // 先检测消息完整性，如果消息完整直接处理？
-      if (this.messageIsComplete()) {
-        this.handleCompleteMessage();
-      }
+      // if (this.messageIsComplete()) {
+      //   this.handleCompleteMessage();
+      // }
     };
     this.websocket.onclose = () => {
       console.log("WebSocket连接已关闭");
@@ -64,9 +65,9 @@ class WebSocketService {
   }
   // 合并数据以构建完整消息
   handleCompleteMessage() {
-    console.log("合并与构建完整消息");
+    // console.log("合并与构建完整消息");
     const combinedPayload = this.messageFragments.join("");
-    this.appendMessage(combinedPayload)
+    this.appendMessage(combinedPayload);
   }
   // 发送数据包
   WebSocketSend(message) {
