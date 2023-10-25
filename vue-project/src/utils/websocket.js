@@ -38,14 +38,14 @@ class WebSocketService {
     };
     this.websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      let format = data.payload.choices.text;
+      let format = data.payload.choices.text[0].content;
       this.status = data.header.status;
       this.messageFragments.push(format);
-      this.appendMessage(format);
+      // this.appendMessage(format);
       // 先检测消息完整性，如果消息完整直接处理？
-      // if (this.messageIsComplete()) {
-      //   this.handleCompleteMessage();
-      // }
+      if (this.messageIsComplete()) {
+        this.handleCompleteMessage();
+      }
     };
     this.websocket.onclose = () => {
       console.log("WebSocket连接已关闭");

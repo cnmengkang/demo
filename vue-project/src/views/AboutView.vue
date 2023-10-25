@@ -17,7 +17,7 @@ import { ref } from "vue";
 const ws = new wsService("wss://javascript.info/article/websocket/demo/hello");
 const inputValue = ref("你好？");
 function sendMessage() {
-  ws.send(inputValue.value);
+  // ws.value.send(inputValue.value);
   console.log(ws);
 }
 function close() {

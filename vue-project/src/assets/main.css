@@ -1,11 +1,7 @@
 @import './base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
+#app{
+  background-color: #fff;
 }
 
 a,
@@ -14,5 +10,64 @@ a,
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
 }
+code[class*="language-"],
+pre[class*="language-"] {
+  word-wrap: normal;
+  background: none;
+  color: #fff;
+  -webkit-hyphens: none;
+  hyphens: none;
+  line-height: 1.5;
+  tab-size: 4;
+  text-align: left;
+  white-space: pre;
+  word-break: normal;
+  word-spacing: normal;
+}
+textarea:focus {
+  border-color: inherit;
+  box-shadow: none;
+  outline: none;
+}
 
+::-webkit-scrollbar {
+  height: 1rem;
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 0.5rem;
+  width: 1rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  --tw-border-opacity: 1;
+  background-color: rgba(217, 217, 227, 0.8);
+  border-color: rgba(255, 255, 255, var(--tw-border-opacity));
+  border-radius: 9999px;
+  border-width: 1px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(236, 236, 241, var(--tw-bg-opacity));
+}
+
+pre {
+  background: #000;
+  padding: 20px 10px;
+  border-radius: 5px;
+  border-radius: 0.375rem;
+  color: currentColor;
+  font-size: 0.875em;
+  font-weight: 400;
+  line-height: 1.7142857;
+  overflow-x: auto;
+  margin-bottom: 15px;
+}
 
