@@ -1,2 +1,2 @@
 # demo
-test
+brew install google-chrome visual-studio-code --cask   volta
